@@ -104,9 +104,106 @@ namespace Xe.Drawing
             }
         }
 
+        private void InternalDrawImageFlipY(BlitFast blit, int x, int y,
+            int srcx, int srcy, int srcwidth, int srcheight)
+        {
+            if (x < 0)
+            {
+                srcx += x;
+                srcwidth += x;
+                x = 0;
+            }
+            if (y < 0)
+            {
+                srcy += y;
+                srcheight += y;
+                y = 0;
+            }
+            if (srcx < 0)
+            {
+                srcwidth += srcx;
+                srcx = 0;
+            }
+            if (srcy < 0)
+            {
+                srcheight += srcy;
+                srcy = 0;
+            }
+            if (srcwidth <= 0 || srcheight <= 0) return;
+            if (srcx + srcwidth > _bitmapData.Width)
+                srcwidth = _bitmapData.Width - srcx;
+            if (srcy + srcheight > _bitmapData.Height)
+                srcheight = _bitmapData.Height - srcy;
+            if (srcwidth <= 0 || srcheight <= 0) return;
+
+            var blockLenght = srcwidth * blit._bpp / 8;
+            if (_bitmapData.Stride == blit._bitmapData.Stride)
+            {
+                var ptrdst = _bitmapData.Scan0 + y * blockLenght;
+                blit.Lock();
+                var ptrsrc = blit._bitmapData.Scan0 + srcy * blockLenght;
+                var count = (uint)(srcheight * blockLenght);
+                CopyMemory(ptrdst, ptrsrc, count);
+            }
+            else
+            {
+                var ptrdst = _bitmapData.Scan0 + x * _bpp / 8 + y * _bitmapData.Stride;
+                var ptrsrc = blit._bitmapData.Scan0 + srcx * _bpp / 8 + srcy * blit._bitmapData.Stride;
+                var stridedst = _bitmapData.Stride;
+                var stridesrc = blit._bitmapData.Stride;
+                switch (blockLenght)
+                {
+                    case 128:
+                        CopyMemory128(ptrdst, ptrsrc, stridedst, stridesrc, srcheight);
+                        break;
+                    case 64:
+                        CopyMemory64(ptrdst, ptrsrc, stridedst, stridesrc, srcheight);
+                        break;
+                    case 32:
+                        CopyMemory32(ptrdst, ptrsrc, stridedst, stridesrc, srcheight);
+                        break;
+                    case 16:
+                        CopyMemory16(ptrdst, ptrsrc, stridedst, stridesrc, srcheight);
+                        break;
+                    case 8:
+                        CopyMemory8(ptrdst, ptrsrc, stridedst, stridesrc, srcheight);
+                        break;
+                    case 4:
+                        CopyMemory4(ptrdst, ptrsrc, stridedst, stridesrc, srcheight);
+                        break;
+                    default:
+                        CopyMemory(ptrdst, ptrsrc, (uint)blockLenght,
+                            stridedst, stridesrc, srcheight);
+                        break;
+                }
+            }
+        }
+
         private unsafe void InternalDrawImageAlpha(BlitFast blit, int x, int y,
             int srcx, int srcy, int srcwidth, int srcheight)
         {
+            if (x < 0)
+            {
+                srcx += x;
+                srcwidth += x;
+                x = 0;
+            }
+            if (y < 0)
+            {
+                srcy += y;
+                srcheight += y;
+                y = 0;
+            }
+            if (srcx < 0)
+            {
+                srcwidth += srcx;
+                srcx = 0;
+            }
+            if (srcy < 0)
+            {
+                srcheight += srcy;
+                srcy = 0;
+            }
             if (srcx + srcwidth > _bitmapData.Width)
                 srcwidth = _bitmapData.Width - srcx;
             if (srcy + srcheight > _bitmapData.Height)

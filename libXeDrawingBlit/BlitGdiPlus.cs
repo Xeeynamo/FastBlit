@@ -83,6 +83,7 @@ namespace Xe.Drawing
             this(new Bitmap(width, height, pixelFormat))
         {
         }
+        ~BlitGdiPlus() { Dispose(); }
 
         public Size Size
         {

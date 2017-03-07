@@ -48,6 +48,7 @@ pop-up. Please report bugs or create some pull-requests to finalize this lib!
 
 ## What is missing (in order of priority)
 
+- Alpha blending is not properly supported (yet)
 - Flip images horizontally or vertically
 - Better indexed images management and palette support
 - Multi-threaded blitting

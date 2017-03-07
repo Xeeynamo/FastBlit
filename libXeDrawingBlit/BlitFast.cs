@@ -63,6 +63,7 @@ namespace Xe.Drawing
             this(new Bitmap(width, height, pixelFormat))
         {
         }
+        ~BlitFast() { Dispose(); }
 
         public Size Size
         {
@@ -182,7 +183,8 @@ namespace Xe.Drawing
             var fast = blit as BlitFast;
             var internalBlit = fast ?? new BlitFast(blit.GetBitmap());
 
-            InternalDrawImageAlpha(internalBlit, x, y, srcx, srcy, srcwidth, srcheight);
+            Lock();
+            //internalBlit._canBeTransparent = false;
             if (internalBlit._canBeTransparent)
                 InternalDrawImageAlpha(internalBlit, x, y, srcx, srcy, srcwidth, srcheight);
             else
