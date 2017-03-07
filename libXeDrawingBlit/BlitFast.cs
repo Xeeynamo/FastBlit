@@ -156,6 +156,20 @@ namespace Xe.Drawing
             _canBeTransparent = true;
         }
 
+        public unsafe void Clear(int color)
+        {
+            if (_isIndexed)
+                throw new InvalidOperationException(ErrorIndexed);
+            var ptr = (int*)_bitmapData.Scan0;
+            var end = (int*)(_bitmapData.Scan0 + _bitmapData.Stride * _bitmapData.Height);
+            while (ptr < end)
+                *ptr++ = color;
+        }
+        public void Clear(Color color)
+        {
+            Clear(color.ToArgb());
+        }
+
         public Color GetPixelColor(int x, int y)
         {
             return Color.FromArgb(GetPixel(x, y));
@@ -184,7 +198,6 @@ namespace Xe.Drawing
             var internalBlit = fast ?? new BlitFast(blit.GetBitmap());
 
             Lock();
-            //internalBlit._canBeTransparent = false;
             if (internalBlit._canBeTransparent)
                 InternalDrawImageAlpha(internalBlit, x, y, srcx, srcy, srcwidth, srcheight);
             else
@@ -261,5 +274,6 @@ namespace Xe.Drawing
             _isLocked = false;
             _bitmap.UnlockBits(_bitmapData);
         }
+
     }
 }

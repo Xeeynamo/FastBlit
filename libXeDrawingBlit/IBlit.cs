@@ -49,6 +49,20 @@ namespace Xe.Drawing
         Bitmap GetBitmap();
 
         /// <summary>
+        /// Clear the entire surface with the specified color.
+        /// This does work only if IsIndexed() is false.
+        /// </summary>
+        /// <param name="color">Color that will be used to clear the surface</param>
+        void Clear(int color);
+
+        /// <summary>
+        /// Clear the entire surface with the specified color.
+        /// This does work only if IsIndexed() is false.
+        /// </summary>
+        /// <param name="color">Color that will be used to clear the surface</param>
+        void Clear(Color color);
+
+        /// <summary>
         /// Get the pixel from the specified position.
         /// This does work only if IsIndexed() is false.
         /// </summary>

@@ -141,6 +141,14 @@ namespace Xe.Drawing
             return Bitmap;
         }
 
+        public void Clear(int color)
+        {
+            Clear(Color.FromArgb(color));
+        }
+        public void Clear(Color color)
+        {
+            _graphics.Clear(color);
+        }
         public int GetPixel(int x, int y)
         {
             return GetPixelColor(x, y).ToArgb();

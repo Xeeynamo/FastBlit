@@ -24,8 +24,7 @@ namespace Xe.Drawing
     {
         private static byte InterpolateByteColor(byte dst, byte src, byte alpha)
         {
-            var r = dst * alpha / byte.MaxValue +
-                    src * (byte.MaxValue - alpha) / byte.MaxValue;
+            var r = (dst * alpha + src * (255 - alpha)) / 255;
             return (byte)r;
         }
 
