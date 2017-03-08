@@ -208,6 +208,8 @@ namespace Xe.Drawing
             if (srcy + srcheight > _bitmapData.Height)
                 srcheight = _bitmapData.Height - srcy;
 
+            blit.Lock();
+
             // Divido per 4 perché è un 32bpp
             var blockLenght = srcwidth * blit._bpp / 8 / 4;
 

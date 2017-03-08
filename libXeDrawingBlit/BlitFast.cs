@@ -29,7 +29,7 @@ namespace Xe.Drawing
         private const string ErrorIndexed = "Unable to operate with colors on an indexed bitmap.";
         private const string OutOfRange = "x or y is out of bounds.";
 
-        private readonly Bitmap _bitmap;
+        private Bitmap _bitmap;
         private readonly int _bpp;
         private readonly bool _isIndexed;
         private readonly PixelFormat _pixelFormat;
@@ -46,7 +46,6 @@ namespace Xe.Drawing
             _pixelFormat = GetCompatiblePixelFormat(_bitmap.PixelFormat, out _bpp, out _canBeTransparent);
             _isIndexed = _bpp <= 8;
             _isLocked = false;
-            Lock();
         }
 
         public BlitFast(Size size) :
@@ -63,7 +62,6 @@ namespace Xe.Drawing
             this(new Bitmap(width, height, pixelFormat))
         {
         }
-        ~BlitFast() { Dispose(); }
 
         public Size Size
         {
@@ -106,6 +104,7 @@ namespace Xe.Drawing
             if (x < 0 || x >= _bitmap.Width ||
                 y < 0 || y >= _bitmap.Height)
                 throw new ArgumentOutOfRangeException(OutOfRange);
+            Lock();
             var pos = x * _bpp / 8 + y * _bitmapData.Stride;
             if (_isIndexed)
                 return ((byte*) _bitmapData.Scan0)[pos];
@@ -123,6 +122,7 @@ namespace Xe.Drawing
             if (x < 0 || x >= _bitmap.Width ||
                 y < 0 || y >= _bitmap.Height)
                 throw new ArgumentOutOfRangeException(OutOfRange);
+            Lock();
             var pos = x * _bpp / 8 + y * _bitmapData.Stride;
             if (!_isIndexed)
             {
@@ -143,6 +143,7 @@ namespace Xe.Drawing
         {
             if (_isIndexed)
                 throw new InvalidOperationException(ErrorIndexed);
+            Lock();
             var ptr = (int*) _bitmapData.Scan0;
             var end = (int*) (_bitmapData.Scan0 + _bitmapData.Stride * _bitmapData.Height);
             data &= 0xFFFFFF; // Non mi serve il canale di trasparenza.
@@ -160,6 +161,7 @@ namespace Xe.Drawing
         {
             if (_isIndexed)
                 throw new InvalidOperationException(ErrorIndexed);
+            Lock();
             var ptr = (int*)_bitmapData.Scan0;
             var end = (int*)(_bitmapData.Scan0 + _bitmapData.Stride * _bitmapData.Height);
             while (ptr < end)
@@ -228,8 +230,12 @@ namespace Xe.Drawing
 
         public void Dispose()
         {
-            Unlock();
-            _bitmap.Dispose();
+            if (_bitmap != null)
+            {
+                Unlock();
+                _bitmap.Dispose();
+                _bitmap = null;
+            }
         }
 
         private static PixelFormat GetCompatiblePixelFormat(PixelFormat pixelFormat, out int bpp, out bool isAlpha)
